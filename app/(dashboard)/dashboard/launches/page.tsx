@@ -60,6 +60,18 @@ export default function LaunchesPage() {
         {/* Filtres */}
         <div className="flex gap-4">
           <select
+            value={filters.size || 10}
+            onChange={(e) => updateFilters({ size: Number(e.target.value) })}
+            className="rounded border p-2"
+          >
+            <option value="5">5 par page</option>
+            <option value="10">10 par page</option>
+            <option value="25">25 par page</option>
+            <option value="50">50 par page</option>
+            <option value="100">100 par page</option>
+          </select>
+
+          <select
             value={filters.year || ''}
             onChange={(e) =>
               updateFilters({ year: e.target.value ? Number(e.target.value) : undefined })
