@@ -1,36 +1,181 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SpaceX Dashboard Frontend
 
-## Getting Started
+Interface utilisateur moderne pour suivre les lancements SpaceX, construite avec Next.js 14 et TypeScript.
 
-First, run the development server:
+## 📋 Prérequis
+
+### Développement local
+
+- Node.js 20.x ou supérieur
+- npm 10.x ou supérieur
+- Un backend SpaceX Dashboard fonctionnel (voir le repo backend)
+
+### Déploiement Docker
+
+- Docker 24.x ou supérieur
+- Docker Compose v2.x ou supérieur
+
+## 🚀 Installation
+
+### Sans Docker (développement)
+
+1. Cloner le repository
+
+```bash
+git clone <repo-url>
+cd spacex-project/frontend
+```
+
+2. Installer les dépendances
+
+```bash
+npm install
+```
+
+3. Configurer les variables d'environnement
+
+```bash
+cp .env.example .env.local
+```
+
+Éditer .env.local avec vos valeurs:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:8080/
+```
+
+4. Lancer l'application en développement
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+L'application sera disponible sur http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Avec Docker
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Cloner le repository et se placer dans le dossier
 
-## Learn More
+```bash
+git clone <repo-url>
+cd spacex-project/frontend
+```
 
-To learn more about Next.js, take a look at the following resources:
+2. Construction et démarrage avec Docker Compose
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+# Construction de l'image
+docker compose build
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# Démarrage des conteneurs
+docker compose up -d
 
-## Deploy on Vercel
+# Voir les logs
+docker compose logs -f
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+L'application sera disponible sur http://localhost:3000
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🛠️ Scripts disponibles
+
+```bash
+# Développement
+npm run dev          # Lance le serveur de développement
+
+# Production
+npm run build        # Build l'application
+npm run start        # Démarre l'application en production
+
+# Docker
+npm run docker:build      # Construction de l'image Docker
+npm run docker:run        # Lance le conteneur Docker
+npm run docker:compose:up # Démarre avec Docker Compose
+```
+
+## 🏗️ Architecture
+
+```
+frontend/
+├── app/                    # Pages et routing (Next.js App Router)
+│   ├── (auth)/            # Routes d'authentification
+│   └── (dashboard)/       # Routes du dashboard
+├── components/            # Composants React réutilisables
+│   ├── ui/               # Composants UI génériques
+│   └── layouts/          # Layouts et templates
+├── contexts/             # Contexts React (ex: AuthContext)
+├── lib/                  # Utilitaires et services
+│   ├── api/             # Services API
+│   └── utils.ts         # Fonctions utilitaires
+└── types/               # Types TypeScript
+```
+
+## 🔐 Authentification
+
+L'application utilise JWT pour l'authentification. Comptes de test disponibles :
+
+- Admin:
+
+  - Email: admin@example.com
+  - Password: admin123
+
+- User:
+  - Email: user@example.com
+  - Password: user123
+
+## 🌍 Variables d'environnement
+
+| Variable              | Description    | Valeur par défaut        |
+| --------------------- | -------------- | ------------------------ |
+| `NEXT_PUBLIC_API_URL` | URL du backend | `http://localhost:8080/` |
+| `NODE_ENV`            | Environnement  | `development`            |
+
+## 🔧 Configuration
+
+### TypeScript
+
+Le projet utilise TypeScript avec une configuration stricte. Voir `tsconfig.json` pour les détails.
+
+### ESLint
+
+Configuration ESLint standard Next.js avec règles TypeScript.
+
+### Docker
+
+Le projet inclut:
+
+- `Dockerfile` optimisé pour Next.js
+- Multi-stage build pour une image légère
+- Configuration Docker Compose pour le développement
+
+## 🚥 Statut du projet
+
+- ✅ Authentication JWT
+- ✅ Dashboard interactif
+- ✅ Statistiques des lancements
+- ✅ Liste des lancements avec filtres
+- ✅ Détails des lancements
+- ✅ Interface admin
+
+## 📚 Documentation API
+
+L'application consomme une API REST. La documentation complète des endpoints est disponible dans le README du backend.
+
+Endpoints principaux:
+
+- `POST /auth/login` - Authentification
+- `GET /dashboard/kpis` - Statistiques globales
+- `GET /dashboard/launches` - Liste des lancements
+- `GET /dashboard/launches/{id}` - Détail d'un lancement
+- `GET /dashboard/stats/yearly` - Statistiques annuelles
+
+## 🤝 Contribution
+
+1. Fork le projet
+2. Créer une branche (`git checkout -b feature/AmazingFeature`)
+3. Commit les changements (`git commit -m 'Add AmazingFeature'`)
+4. Push vers la branche (`git push origin feature/AmazingFeature`)
+5. Ouvrir une Pull Request
+
+## 📝 License
+
+Distributed under the MIT License. See `LICENSE` for more information.
