@@ -1,21 +1,21 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect, type ReactNode } from 'react';
 
 /**
  * Props du composant ProtectedRoute
  */
 interface ProtectedRouteProps {
-  children: React.ReactNode;
+  children: ReactNode;
   requireAdmin?: boolean;
 }
 
 /**
  * Composant pour protéger les routes
- * Redirige vers /login si non authentifié
- * Redirige vers /dashboard si admin requis mais user simple
+ * - Redirige vers /login si non authentifié
+ * - Redirige vers /dashboard si admin requis mais user simple
  */
 export function ProtectedRoute({ children, requireAdmin = false }: ProtectedRouteProps) {
   const { isAuthenticated, isLoading, isAdmin } = useAuth();
@@ -26,12 +26,18 @@ export function ProtectedRoute({ children, requireAdmin = false }: ProtectedRout
     // Attendre que le chargement soit terminé
     if (isLoading) return;
 
+    if (pathname === '/login') return;
+
     // Si non authentifié, rediriger vers login
     if (!isAuthenticated) {
       console.log('[ProtectedRoute] User not authenticated, redirecting to login');
       router.push('/login');
       return;
     }
+
+    // if (!isAuthenticated) {
+    //   router.push(`/login?from=${pathname}`);
+    // }
 
     // Si admin requis mais user simple, rediriger vers dashboard
     if (requireAdmin && !isAdmin()) {
@@ -49,7 +55,7 @@ export function ProtectedRoute({ children, requireAdmin = false }: ProtectedRout
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900" />
       </div>
     );
   }

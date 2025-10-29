@@ -1,9 +1,9 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
 import { authService } from '@/lib/api';
-import { User, LoginRequest, AuthResponse } from '@/types';
+import { LoginRequest, User } from '@/types';
+import { useRouter } from 'next/navigation';
+import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
 
 /**
  * Interface pour le contexte d'authentification
@@ -27,12 +27,12 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
  * Props du provider
  */
 interface AuthProviderProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 /**
  * Provider d'authentification
- * Wrap l'application pour fournir l'état d'authentification partout
+ * Gère l'état global de l'authentification
  */
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
@@ -40,7 +40,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const router = useRouter();
 
   /**
-   * Initialise l'utilisateur au chargement du composant
+   * Initialise l'utilisateur au chargement
    */
   useEffect(() => {
     initializeAuth();
@@ -76,7 +76,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         console.log('[AuthContext] Logging in user:', credentials.email);
 
         // Appel API de connexion
-        const response: AuthResponse = await authService.login(credentials);
+        await authService.login(credentials);
 
         // Récupérer l'utilisateur depuis le JWT décodé
         const currentUser = authService.getCurrentUser();
@@ -85,7 +85,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         console.log('[AuthContext] Login successful:', currentUser?.username);
 
         // Rediriger vers le dashboard
-        router.push('/dashboard');
+        router.replace('/dashboard');
       } catch (error) {
         console.error('[AuthContext] Login failed:', error);
         throw error;
@@ -103,7 +103,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     console.log('[AuthContext] Logging out user:', user?.username);
     setUser(null);
     authService.logout();
-    router.push('/login');
+    router.replace('/login');
   }, [user, router]);
 
   /**
@@ -154,8 +154,3 @@ export function useAuth(): AuthContextType {
 
   return context;
 }
-
-/**
- * Export du contexte pour des cas d'usage avancés
- */
-export { AuthContext };
