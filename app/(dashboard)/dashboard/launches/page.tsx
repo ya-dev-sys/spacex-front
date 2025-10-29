@@ -92,7 +92,9 @@ export default function LaunchesPage() {
 
           <Select
             value={filters.year?.toString() || 'all'}
-            onValueChange={(value) => updateFilters({ year: value === 'all' ? undefined : Number(value) })}
+            onValueChange={(value) =>
+              updateFilters({ year: value === 'all' ? undefined : Number(value) })
+            }
           >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Année" />
@@ -111,7 +113,7 @@ export default function LaunchesPage() {
             value={filters.success?.toString() || 'all'}
             onValueChange={(value) =>
               updateFilters({
-                success: value === 'all' ? undefined : value === 'true'
+                success: value === 'all' ? undefined : value === 'true',
               })
             }
           >
@@ -167,14 +169,14 @@ export default function LaunchesPage() {
               <div className="flex items-center space-x-2">
                 <Button
                   variant="outline"
-                  onClick={() => updateFilters({ page: filters.page - 1 })}
+                  onClick={() => updateFilters({ page: filters.page ? filters.page - 1 : 1 - 1 })}
                   disabled={launches?.first}
                 >
                   Précédent
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={() => updateFilters({ page: filters.page + 1 })}
+                  onClick={() => updateFilters({ page: filters.page ? filters.page + 1 : 1 + 1 })}
                   disabled={launches?.last}
                 >
                   Suivant
