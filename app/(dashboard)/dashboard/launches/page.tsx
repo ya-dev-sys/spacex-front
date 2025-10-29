@@ -1,5 +1,22 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { launchService } from '@/lib/api';
 import type { Launch, LaunchFilters, Page } from '@/types';
 import Link from 'next/link';
@@ -53,115 +70,120 @@ export default function LaunchesPage() {
   }, [filters.page, filters.size, filters.year, filters.success]);
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Lancements</h1>
-
-        {/* Filtres */}
-        <div className="flex gap-4">
-          <select
-            value={filters.size || 10}
-            onChange={(e) => updateFilters({ size: Number(e.target.value) })}
-            className="rounded border p-2"
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+        <CardTitle>Lancements</CardTitle>
+        <div className="flex items-center space-x-4">
+          <Select
+            value={String(filters.size)}
+            onValueChange={(value) => updateFilters({ size: Number(value) })}
           >
-            <option value="5">5 par page</option>
-            <option value="10">10 par page</option>
-            <option value="25">25 par page</option>
-            <option value="50">50 par page</option>
-            <option value="100">100 par page</option>
-          </select>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Nombre par page" />
+            </SelectTrigger>
+            <SelectContent>
+              {[5, 10, 25, 50, 100].map((size) => (
+                <SelectItem key={size} value={String(size)}>
+                  {size} par page
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-          <select
-            value={filters.year || ''}
-            onChange={(e) =>
-              updateFilters({ year: e.target.value ? Number(e.target.value) : undefined })
+          <Select
+            value={filters.year?.toString() || 'all'}
+            onValueChange={(value) => updateFilters({ year: value === 'all' ? undefined : Number(value) })}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Année" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Toutes années</SelectItem>
+              {[2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016].map((year) => (
+                <SelectItem key={year} value={year.toString()}>
+                  {year}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select
+            value={filters.success?.toString() || 'all'}
+            onValueChange={(value) =>
+              updateFilters({
+                success: value === 'all' ? undefined : value === 'true'
+              })
             }
-            className="rounded border p-2"
           >
-            <option value="">Toutes années</option>
-            {[2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016].map((year) => (
-              <option key={year} value={year}>
-                {year}
-              </option>
-            ))}
-          </select>
-
-          <select
-            value={filters.success?.toString() || ''}
-            onChange={(e) =>
-              updateFilters({ success: e.target.value ? e.target.value === 'true' : undefined })
-            }
-            className="rounded border p-2"
-          >
-            <option value="">Tous statuts</option>
-            <option value="true">Succès</option>
-            <option value="false">Échec</option>
-          </select>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Statut" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tous statuts</SelectItem>
+              <SelectItem value="true">Succès</SelectItem>
+              <SelectItem value="false">Échec</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
-      </div>
-
-      {/* Table des lancements */}
-      {loading ? (
-        <div className="text-center">Chargement des lancements...</div>
-      ) : (
-        <>
-          <div className="rounded bg-white shadow overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead>
-                <tr>
-                  <th className="px-4 py-2 text-left text-sm text-gray-500">Nom</th>
-                  <th className="px-4 py-2 text-left text-sm text-gray-500">Date</th>
-                  <th className="px-4 py-2 text-left text-sm text-gray-500">Fusée</th>
-                  <th className="px-4 py-2 text-left text-sm text-gray-500">Statut</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+      </CardHeader>
+      <CardContent>
+        {loading ? (
+          <div className="flex items-center justify-center p-8">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-r-transparent" />
+          </div>
+        ) : (
+          <>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Nom</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Fusée</TableHead>
+                  <TableHead>Statut</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {launches?.content.map((l) => (
-                  <tr key={l.id}>
-                    <td className="px-4 py-2">
+                  <TableRow key={l.id}>
+                    <TableCell>
                       <Link href={`/dashboard/launches/${l.id}`} className="text-blue-600">
                         {l.name}
                       </Link>
-                    </td>
-                    <td className="px-4 py-2">{new Date(l.dateUtc).toLocaleDateString('fr-FR')}</td>
-                    <td className="px-4 py-2">{l.rocket?.name ?? 'N/A'}</td>
-                    <td className="px-4 py-2">
+                    </TableCell>
+                    <TableCell>{new Date(l.dateUtc).toLocaleDateString('fr-FR')}</TableCell>
+                    <TableCell>{l.rocket?.name ?? 'N/A'}</TableCell>
+                    <TableCell>
                       {l.success === true ? 'Succès' : l.success === false ? 'Échec' : 'À venir'}
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
-          </div>
+              </TableBody>
+            </Table>
 
-          {/* Pagination */}
-          <div className="mt-4 flex items-center justify-between">
-            <div className="text-sm text-gray-600">Total: {launches?.totalElements} lancements</div>
-
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => updateFilters({ page: filters.page - 1 })}
-                disabled={launches?.first}
-                className="px-3 py-1 rounded bg-gray-200 disabled:opacity-50"
-              >
-                Précédent
-              </button>
-
-              <span>
-                Page {(launches?.number ?? 0) + 1} sur {launches?.totalPages ?? 0}
-              </span>
-
-              <button
-                onClick={() => updateFilters({ page: filters.page + 1 })}
-                disabled={launches?.last}
-                className="px-3 py-1 rounded bg-gray-200 disabled:opacity-50"
-              >
-                Suivant
-              </button>
+            <div className="mt-4 flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">
+                Total: {launches?.totalElements} lancements
+              </p>
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="outline"
+                  onClick={() => updateFilters({ page: filters.page - 1 })}
+                  disabled={launches?.first}
+                >
+                  Précédent
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => updateFilters({ page: filters.page + 1 })}
+                  disabled={launches?.last}
+                >
+                  Suivant
+                </Button>
+              </div>
             </div>
-          </div>
-        </>
-      )}
-    </div>
+          </>
+        )}
+      </CardContent>
+    </Card>
   );
 }

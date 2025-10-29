@@ -1,6 +1,16 @@
 'use client';
 
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { launchService } from '@/lib/api';
+import { cn } from '@/lib/utils';
 import type { Launch, LaunchStats, Page, YearlyStats } from '@/types';
 import { useEffect, useState } from 'react';
 
@@ -119,119 +129,98 @@ export default function DashboardPage() {
       </div>
 
       {/* Stats annuelles */}
-      <div className="rounded-lg bg-white p-6 shadow">
-        <h3 className="text-lg font-medium text-gray-900">Statistiques par Année</h3>
-
-        {loadingYearly ? (
-          <div className="mt-4 text-center">
-            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent" />
-          </div>
-        ) : (
-          <div className="mt-4 overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead>
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                    Année
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                    Lancements
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                    Taux de Succès
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200 bg-white">
+      <Card>
+        <CardHeader>
+          <CardTitle>Statistiques par Année</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {loadingYearly ? (
+            <div className="flex justify-center py-8">
+              <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-r-transparent" />
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Année</TableHead>
+                  <TableHead>Lancements</TableHead>
+                  <TableHead>Taux de Succès</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {yearlyStats.map((stat) => (
-                  <tr key={stat.year}>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
-                      {stat.year}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                      {stat.totalLaunches}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-green-600">
-                      {stat.successRate.toFixed(2)}%
-                    </td>
-                  </tr>
+                  <TableRow key={stat.year}>
+                    <TableCell className="font-medium">{stat.year}</TableCell>
+                    <TableCell>{stat.totalLaunches}</TableCell>
+                    <TableCell className="text-green-600">{stat.successRate.toFixed(2)}%</TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Liste des lancements */}
-      <div className="rounded-lg bg-white p-6 shadow">
-        <h3 className="text-lg font-medium text-gray-900">Derniers Lancements</h3>
+      <Card>
+        <CardHeader>
+          <CardTitle>Derniers Lancements</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {loadingLaunches ? (
+            <div className="flex justify-center py-8">
+              <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-r-transparent" />
+            </div>
+          ) : (
+            <>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nom</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Fusée</TableHead>
+                    <TableHead>Statut</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {launches?.content.map((launch) => (
+                    <TableRow key={launch.id}>
+                      <TableCell className="font-medium">{launch.name}</TableCell>
+                      <TableCell>{new Date(launch.dateUtc).toLocaleDateString('fr-FR')}</TableCell>
+                      <TableCell>{launch.rocket?.name ?? 'N/A'}</TableCell>
+                      <TableCell>
+                        <span
+                          className={cn(
+                            'inline-flex items-center rounded-full px-2 py-1 text-xs font-medium',
+                            {
+                              'bg-green-100 text-green-700': launch.success === true,
+                              'bg-red-100 text-red-700': launch.success === false,
+                              'bg-gray-100 text-gray-700': launch.success === null,
+                            }
+                          )}
+                        >
+                          {launch.success === true
+                            ? 'Succès'
+                            : launch.success === false
+                            ? 'Échec'
+                            : 'À venir'}
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
 
-        {loadingLaunches ? (
-          <div className="mt-4 text-center">
-            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent" />
-          </div>
-        ) : (
-          <div className="mt-4 overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead>
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                    Nom
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                    Date
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                    Fusée
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                    Statut
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200 bg-white">
-                {launches?.content.map((launch) => (
-                  <tr key={launch.id}>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
-                      {launch.name}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                      {new Date(launch.dateUtc).toLocaleDateString('fr-FR')}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                      {launch.rocket?.name ?? 'N/A'}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm">
-                      {launch.success === true && (
-                        <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-semibold text-green-800">
-                          Succès
-                        </span>
-                      )}
-                      {launch.success === false && (
-                        <span className="rounded-full bg-red-100 px-2 py-1 text-xs font-semibold text-red-800">
-                          Échec
-                        </span>
-                      )}
-                      {launch.success === null && (
-                        <span className="rounded-full bg-gray-100 px-2 py-1 text-xs font-semibold text-gray-800">
-                          À venir
-                        </span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-
-            {launches && (
-              <div className="mt-4 text-sm text-gray-600">
-                Page {launches.number + 1} sur {launches.totalPages} ({launches.totalElements}{' '}
-                lancements au total)
-              </div>
-            )}
-          </div>
-        )}
-      </div>
+              {launches && (
+                <div className="mt-4 text-sm text-muted-foreground">
+                  Page {launches.number + 1} sur {launches.totalPages} ({launches.totalElements}{' '}
+                  lancements au total)
+                </div>
+              )}
+            </>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

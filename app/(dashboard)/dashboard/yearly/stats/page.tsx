@@ -1,5 +1,14 @@
 'use client';
 
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { launchService } from '@/lib/api';
 import type { YearlyStats } from '@/types';
 import { useEffect, useState } from 'react';
@@ -23,31 +32,41 @@ export default function YearlyStatsPage() {
     load();
   }, []);
 
-  if (loading) return <div>Chargement des statistiques annuelles...</div>;
+  if (loading) {
+    return (
+      <div className="flex justify-center py-8">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-r-transparent" />
+      </div>
+    );
+  }
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-4">Statistiques par année</h1>
-      <div className="rounded bg-white shadow overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead>
-            <tr>
-              <th className="px-4 py-2 text-left text-sm font-medium text-gray-500">Année</th>
-              <th className="px-4 py-2 text-left text-sm font-medium text-gray-500">Lancements</th>
-              <th className="px-4 py-2 text-left text-sm font-medium text-gray-500">Taux</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+    <Card>
+      <CardHeader>
+        <CardTitle>Statistiques par année</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Année</TableHead>
+              <TableHead>Lancements</TableHead>
+              <TableHead className="text-right">Taux de Succès</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {stats.map((s) => (
-              <tr key={s.year}>
-                <td className="px-4 py-2">{s.year}</td>
-                <td className="px-4 py-2">{s.totalLaunches}</td>
-                <td className="px-4 py-2">{s.successRate.toFixed(2)}%</td>
-              </tr>
+              <TableRow key={s.year}>
+                <TableCell className="font-medium">{s.year}</TableCell>
+                <TableCell>{s.totalLaunches}</TableCell>
+                <TableCell className="text-right">
+                  <span className="text-green-600 font-medium">{s.successRate.toFixed(2)}%</span>
+                </TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
   );
 }

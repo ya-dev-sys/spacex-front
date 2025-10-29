@@ -1,9 +1,18 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { launchService } from '@/lib/api';
 import type { Launch } from '@/types';
+import { useParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 export default function LaunchDetailPage() {
   const params = useParams();
@@ -28,34 +37,83 @@ export default function LaunchDetailPage() {
   }, [id]);
 
   if (!id) return <div>ID manquant</div>;
-  if (loading) return <div>Chargement du lancement...</div>;
+  if (loading) {
+    return (
+      <div className="flex justify-center py-8">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-r-transparent" />
+      </div>
+    );
+  }
   if (!launch) return <div>Lancement introuvable</div>;
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-2xl font-bold">{launch.name}</h1>
-      <p className="text-sm text-gray-600">{new Date(launch.dateUtc).toLocaleString('fr-FR')}</p>
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>{launch.name}</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            {new Date(launch.dateUtc).toLocaleString('fr-FR')}
+          </p>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div>
+            <h3 className="font-semibold mb-2">Détails</h3>
+            <p className="text-muted-foreground">{launch.details ?? 'Aucun détail'}</p>
+          </div>
 
-      <div className="rounded bg-white p-4 shadow">
-        <h2 className="font-semibold">Détails</h2>
-        <p>{launch.details ?? 'Aucun détail'}</p>
+          <div>
+            <h3 className="font-semibold mb-2">Informations</h3>
+            <Table>
+              <TableBody>
+                <TableRow>
+                  <TableCell className="font-medium">Fusée</TableCell>
+                  <TableCell>
+                    {launch.rocket?.name ?? 'N/A'} ({launch.rocket?.company ?? '—'})
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="font-medium">Lanceur</TableCell>
+                  <TableCell>
+                    {launch.launchPad?.name ?? 'N/A'} — {launch.launchPad?.locality ?? ''}
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </div>
 
-        <h3 className="mt-4 font-semibold">Fusée</h3>
-        <p>{launch.rocket?.name ?? 'N/A'} ({launch.rocket?.company ?? '—'})</p>
-
-        <h3 className="mt-4 font-semibold">Lanceur</h3>
-        <p>{launch.launchPad?.name ?? 'N/A'} — {launch.launchPad?.locality ?? ''}</p>
-
-        <h3 className="mt-4 font-semibold">Payloads</h3>
-        <ul className="list-disc pl-5">
-          {launch.payloads.length === 0 && <li>Aucun payload</li>}
-          {launch.payloads.map((p) => (
-            <li key={p.id}>
-              {p.name ?? 'N/A'} — {p.type ?? '—'} — {p.massKg ?? '—'} kg
-            </li>
-          ))}
-        </ul>
-      </div>
+          <div>
+            <h3 className="font-semibold mb-2">Payloads</h3>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Nom</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead className="text-right">Masse</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {launch.payloads.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={3} className="text-center text-muted-foreground">
+                      Aucun payload
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  launch.payloads.map((p) => (
+                    <TableRow key={p.id}>
+                      <TableCell className="font-medium">{p.name ?? 'N/A'}</TableCell>
+                      <TableCell>{p.type ?? '—'}</TableCell>
+                      <TableCell className="text-right">
+                        {p.massKg ? `${p.massKg} kg` : '—'}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
